@@ -8,7 +8,7 @@ setup(name='mgplottools',
       description='Collection of Utilities for plotting and visualization',
       author='Michael Goerz',
       author_email='mail@michaelgoerz.net',
-      url='http://github.com/goerz/mgplotutils',
+      url='http://github.com/goerz/mgplottools',
       license='GPL',
       packages=['mgplottools']
      )
