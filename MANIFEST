@@ -1,0 +1,5 @@
+README.markdown
+COPYING.txt
+setup.py
+mgplottools/__init__.py
+mgplottools/mpl.py
