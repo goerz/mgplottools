@@ -11,7 +11,7 @@ Collection of utilities to aid in generating plots and visualizations with
 
 ## Installation ##
 
-    pip install mgplottols
+    pip install mgplottools
 
 To get the latest revision from git hub, use
 
