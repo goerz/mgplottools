@@ -29,7 +29,7 @@ def writetotxt(fname, *args, **kwargs):
         multi-format string, e.g. 'Iteration %d -- %10.5f', in which
         case `delimiter` is ignored. For a complex array in `*args`, a format
         for the real and imaginary parts must be given.
-        Defaults to '%.18e'
+        Defaults to '%25.16E' (different from `numpy.savetxt`)
     delimiter : str, optional
         Character separating columns. Defaults to ''
     header : str or sequence of strs, optional
@@ -92,7 +92,7 @@ def writetotxt(fname, *args, **kwargs):
 
     """
 
-    fmt       = kwargs.get('fmt', '%.18e')
+    fmt       = kwargs.get('fmt', '%25.16E')
     delimiter = kwargs.get('delimiter', '')
     header    = kwargs.get('header', '')
     footer    = kwargs.get('footer', '')
