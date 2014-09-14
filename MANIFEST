@@ -3,3 +3,4 @@ COPYING.txt
 setup.py
 mgplottools/__init__.py
 mgplottools/mpl.py
+mgplottools/io.py
