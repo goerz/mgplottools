@@ -131,15 +131,40 @@ def new_ls_cycle(ls_cycle=None):
 # utilities
 
 
-def new_figure(fig_width, fig_height, size_in_cm=True, quiet=False, **kwargs):
+def new_figure(fig_width, fig_height, size_in_cm=True, style=None, quiet=False,
+    **kwargs):
     """
-    Return a new matplotlib figure of the specified size (in cm, or in inch, if
-    `size_in_cm` is False)
+    Return a new matplotlib figure of the specified size (in cm by default)
 
     Information about the matplotlib backend, settings and the figure will be
     printed on STDOUT, unless `quiet=True` is given.
 
     The remaining kwargs are passed to the Figure init routine
+
+    Arguments
+    ---------
+
+    fig_width: float
+        total width of figure canvas, in cm (or inches if `size_in_cm=False`
+
+    fig_height: float
+        total height of figure canvas, in cm (or inches if `size_in_cm=False`
+
+    size_in_cm: boolean, optional
+        give as False to indicate that `fig_width` and `fig_height` are in
+        inches instead of cm
+
+    style: string or array of strings, optional
+        A style file to overwrite or ammend the matplotlibrc file. For
+        matplotlib version >=1.4, the style sheet feature will be used, see
+        <http://matplotlib.org/users/style_sheets.html>
+        In older versions of matplotlib, `style` must a filename or URL string;
+        the contents of the file will be merged with the matplotlibrc settings
+
+    quiet: boolean, optional
+
+    Notes
+    -----
 
     You may use the figure as follows:
 
@@ -159,6 +184,25 @@ def new_figure(fig_width, fig_height, size_in_cm=True, quiet=False, **kwargs):
     if not quiet:
         print "Using backend: ", backend
         print "Using maplotlibrc: ", matplotlib.matplotlib_fname()
+    if style is not None:
+        try:
+            from matplotlib import style
+            style.use(style)
+            if not quiet:
+                print "Using style: ", style
+        except ImportError:
+            if not quiet:
+                print "The style package was added to matplotlib in version " \
+                "1.4. It is not available in your release.\n"
+                print "Using fall-back implementation"
+            try:
+                from matplotlib import rc_params_from_file
+                rc = rc_params_from_file(style, use_default_template=False)
+                matplotlib.rcParams.update(rc)
+            except:
+                print "Style '%s' not found" % style
+        except ValueError as e:
+            print "Error loading style %s: %s" % (style, e)
 
     if size_in_cm:
         if not quiet:
