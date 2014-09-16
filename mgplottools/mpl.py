@@ -186,8 +186,8 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None, quiet=False,
         print "Using maplotlibrc: ", matplotlib.matplotlib_fname()
     if style is not None:
         try:
-            from matplotlib import style
-            style.use(style)
+            import matplotlib.style as mpl_style
+            mpl_style.use(style)
             if not quiet:
                 print "Using style: ", style
         except ImportError:
