@@ -27,6 +27,8 @@ import matplotlib.figure
 import numpy as np
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
 
+cm2inch = 0.39370079
+
 
 # colors
 
@@ -196,18 +198,8 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None,
     Simply create a figure, then call `plt.show()` and `plt.draw()`
 
     If not using a backend (`no_backend=True`, bypassing the pyplot state
-    machine), you must create the canvas manually:
-
-    >>> from matplotlib.backends.backend_agg \
-    ... import FigureCanvasAgg as FigureCanvas
-    >>> fig = mgplottools.mpl.new_figure(10, 4) # ... (do some plotting)
-    >>> canvas = FigureCanvasAgg(fig)
-    >>> canvas.print_figure("out.png", dpi=300)
-
-    Of course, you must also use this object-oriented interface if you're
-    embedding plots in your own GUI application. See
-    http://stackoverflow.com/questions/22729206/matplotlib-show-figure-again
-    or the matplotlib user interface examples
+    machine), you must create the canvas manually. Consider using the
+    `show_fig`, `write_pdf`, `write_eps`, and `write_png` routines
     """
     if (no_backend):
         from matplotlib.figure import Figure as figure
@@ -217,7 +209,6 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None,
         using_pyplot = True
         from matplotlib.pyplot import figure
         backend = matplotlib.get_backend().lower()
-    cm2inch = 0.39370079
 
     if not quiet:
         print "Using backend: ", backend
@@ -335,3 +326,99 @@ def set_axis(ax, which_axis, start, stop, step, range=None, minor=0,
                     ax.set_yticklabels([])
 
 
+def show_fig(fig):
+    """
+    Display the given figure in a custom Qt4 window. This is independent from
+    the pyplot framework and thus works for figures that were created with
+    `no_backend=True`.
+
+    However, after calling this routine, an existing pyplot backend will be
+    permanently changed and may be dysfunctional.
+
+    Also, interactively showing the figure can change its size, so you you want
+    to generate a PDF of PNG file after showing the figure, make sure the
+    figure size is correct.
+    """
+    from PyQt4.QtCore import Qt
+    from PyQt4.QtGui import QMainWindow, QWidget, QVBoxLayout, QApplication
+    # TODO: make interactive
+    # http://stackoverflow.com/questions/22729206/matplotlib-show-figure-again
+
+    class AppForm(QMainWindow):
+        def __init__(self, fig):
+            parent = None
+            QMainWindow.__init__(self, parent)
+            self.create_main_frame(fig)
+            self.on_draw()
+
+        def create_main_frame(self, fig):
+            from matplotlib.backends.backend_qt4agg import (
+                        FigureCanvasQTAgg as FigureCanvas,
+                        NavigationToolbar2QT as NavigationToolbar)
+            self.main_frame = QWidget()
+            self.fig = fig
+            self.canvas = FigureCanvas(self.fig)
+            self.canvas.setParent(self.main_frame)
+            self.canvas.setFocusPolicy(Qt.StrongFocus)
+            self.canvas.setFocus()
+
+            self.mpl_toolbar = NavigationToolbar(self.canvas, self.main_frame)
+
+            self.canvas.mpl_connect('key_press_event', self.on_key_press)
+
+            vbox = QVBoxLayout()
+            vbox.addWidget(self.canvas)  # the matplotlib canvas
+            vbox.addWidget(self.mpl_toolbar)
+            self.main_frame.setLayout(vbox)
+            self.setCentralWidget(self.main_frame)
+
+        def on_draw(self):
+            self.canvas.draw()
+
+        def on_key_press(self, event):
+            from matplotlib.backend_bases import key_press_handler
+            print('you pressed', event.key)
+            # implement the default mpl key press events described at
+            # http://matplotlib.org/users/navigation_toolbar.html
+            key_press_handler(event, self.canvas, self.mpl_toolbar)
+
+    app = QApplication([])
+    form = AppForm(fig)
+    form.show()
+    app.exec_()
+
+
+def write_pdf(fig, outfile, dpi=72):
+    """
+    Write a pdf of the given figure, indendent of the pyplot backend.
+    However, if the figure was created from pyplot, an existing pyplot backend
+    will be permanently changed and may be dysfunctional.
+    """
+    from matplotlib.backends.backend_pdf \
+    import FigureCanvasPdf as FigureCanvas
+    canvas = FigureCanvas(fig)
+    canvas.print_figure(outfile, dpi=dpi)
+
+
+def write_png(fig, outfile, dpi=72):
+    """
+    Write a png of the given figure, indendent of the pyplot backend.
+    However, if the figure was created from pyplot, an existing pyplot backend
+    will be permanently changed and may be dysfunctional.
+    """
+    from matplotlib.backends.backend_agg \
+    import FigureCanvasAgg as FigureCanvas
+    canvas = FigureCanvas(fig)
+    canvas.print_figure(outfile, dpi=dpi)
+
+
+def write_eps(fig, outfile, dpi=72):
+    """
+    Write a eps of the given figure, indendent of the pyplot backend.
+    However, if the figure was created from pyplot, an existing pyplot backend
+    will be permanently changed and may be dysfunctional.
+    """
+    from matplotlib.backends.backend_ps \
+    import FigureCanvasPS as FigureCanvas
+    canvas = FigureCanvas(fig)
+    canvas.print_figure(outfile, dpi=dpi)
