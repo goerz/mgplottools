@@ -343,6 +343,10 @@ def show_fig(fig):
     from PyQt4.QtGui import QMainWindow, QWidget, QVBoxLayout, QApplication
     # TODO: make interactive
     # http://stackoverflow.com/questions/22729206/matplotlib-show-figure-again
+    #
+    # See
+    # https://github.com/eliben/code-for-blog/blob/master/2009/qt_mpl_bars.py
+    # for further examples of GUI programming
 
     class AppForm(QMainWindow):
         def __init__(self, fig):
