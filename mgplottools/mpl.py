@@ -335,9 +335,8 @@ def show_fig(fig):
     However, after calling this routine, an existing pyplot backend will be
     permanently changed and may be dysfunctional.
 
-    Also, interactively showing the figure can change its size, so you you want
-    to generate a PDF of PNG file after showing the figure, make sure the
-    figure size is correct.
+    Since interactively showing the figure can change its size, we attempt to
+    restore the original size on exit from the routine.
     """
     from PyQt4.QtCore import Qt
     from PyQt4.QtGui import QMainWindow, QWidget, QVBoxLayout, QApplication
@@ -386,10 +385,14 @@ def show_fig(fig):
             # http://matplotlib.org/users/navigation_toolbar.html
             key_press_handler(event, self.canvas, self.mpl_toolbar)
 
+    w = fig.get_figwidth()
+    h = fig.get_figheight()
     app = QApplication([])
     form = AppForm(fig)
     form.show()
     app.exec_()
+    fig.set_figwidth(w)
+    fig.set_figheight(h)
 
 
 def write_pdf(fig, outfile, dpi=72):
