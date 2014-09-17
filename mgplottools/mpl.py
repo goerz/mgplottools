@@ -23,6 +23,7 @@ You must create a new cycle object each time your want to restart the cycle
 """
 from itertools import cycle
 import matplotlib
+import matplotlib.figure
 import numpy as np
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
 
@@ -131,8 +132,8 @@ def new_ls_cycle(ls_cycle=None):
 # utilities
 
 
-def new_figure(fig_width, fig_height, size_in_cm=True, style=None, quiet=False,
-    **kwargs):
+def new_figure(fig_width, fig_height, size_in_cm=True, style=None,
+    no_backend=False, quiet=False, **kwargs):
     """
     Return a new matplotlib figure of the specified size (in cm by default)
 
@@ -161,12 +162,17 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None, quiet=False,
         In older versions of matplotlib, `style` must a filename or URL string;
         the contents of the file will be merged with the matplotlibrc settings
 
+    no_backend: boolean, optional
+        If given as True, skip the use of the pyplot entirely, creating the
+        figure in a purely object-oriented way.
+
     quiet: boolean, optional
 
     Notes
     -----
 
-    You may use the figure as follows:
+    You may use the figure as follows, assuming the pyplot is used
+    (`no_backend=False`)
 
     >>> import matplotlib
     >>> matplotlib.use('PDF') # backend ('PDF' for pdf, 'Agg' for png)
@@ -176,11 +182,43 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None, quiet=False,
     >>> ax.plot(linspace(0, 10, 100), linspace(0, 10, 100))
     >>> fig.savefig('out.pdf', format='pdf')
 
+    Alternatively, for a GUI backend, instead of `fig.savefig()`, you can
+    display all created figures using `fig.show()` -- it is set up as an alias
+    to matplotlib.pyplot.show().
+
+    If you want to do any interactive plotting in ipython (i.e. manipulating
+    the plot after its creation), make sure to load the %matplotlib or %pylab
+    magic functions. Also, you must use pyplot
+
+    >>> import matplotlib.pyplot as plt
+
+    Do not use `plt.ion()`, which does not work in ipython.
+    Simply create a figure, then call `plt.show()` and `plt.draw()`
+
+    If not using a backend (`no_backend=True`, bypassing the pyplot state
+    machine), you must create the canvas manually:
+
+    >>> from matplotlib.backends.backend_agg \
+    ... import FigureCanvasAgg as FigureCanvas
+    >>> fig = mgplottools.mpl.new_figure(10, 4) # ... (do some plotting)
+    >>> canvas = FigureCanvasAgg(fig)
+    >>> canvas.print_figure("out.png", dpi=300)
+
+    Of course, you must also use this object-oriented interface if you're
+    embedding plots in your own GUI application. See
+    http://stackoverflow.com/questions/22729206/matplotlib-show-figure-again
+    or the matplotlib user interface examples
     """
-    from matplotlib.pyplot import figure
+    if (no_backend):
+        from matplotlib.figure import Figure as figure
+        backend = "N/A"
+        using_pyplot = False
+    else:
+        using_pyplot = True
+        from matplotlib.pyplot import figure
+        backend = matplotlib.get_backend().lower()
     cm2inch = 0.39370079
 
-    backend = matplotlib.get_backend().lower()
     if not quiet:
         print "Using backend: ", backend
         print "Using maplotlibrc: ", matplotlib.matplotlib_fname()
@@ -208,13 +246,18 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None, quiet=False,
         if not quiet:
             print "Figure height: ", fig_height, " cm"
             print "Figure width : ", fig_width, " cm"
-        return figure(figsize=(fig_width*cm2inch, fig_height*cm2inch),
+        fig = figure(figsize=(fig_width*cm2inch, fig_height*cm2inch),
                       **kwargs)
     else:
         if not quiet:
             print "Figure height: ", fig_height / cm2inch, " cm"
             print "Figure width : ", fig_width / cm2inch , " cm"
-        return figure(figsize=(fig_width, fig_height), **kwargs)
+        fig = figure(figsize=(fig_width, fig_height), **kwargs)
+    if using_pyplot:
+        # replace fig.show() with matplotlib.pyplot.show()
+        from matplotlib.pyplot import show
+        fig.show = show
+    return fig
 
 
 def set_axis(ax, which_axis, start, stop, step, range=None, minor=0,
