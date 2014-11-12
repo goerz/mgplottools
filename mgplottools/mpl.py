@@ -25,6 +25,7 @@ from itertools import cycle
 import matplotlib
 import matplotlib.figure
 import numpy as np
+import os
 from matplotlib.ticker import AutoMinorLocator, FormatStrFormatter
 
 cm2inch = 0.39370079
@@ -429,3 +430,18 @@ def write_eps(fig, outfile, dpi=72):
     import FigureCanvasPS as FigureCanvas
     canvas = FigureCanvas(fig)
     canvas.print_figure(outfile, dpi=dpi)
+
+
+def write_figure(fig, outfile, dpi=72):
+    """
+    Write out a figure to the given outfile, either in pdf, eps, or png format
+    depending on the extension of outfile. This works independently of the
+    pyplot backend; however, it may disable any existing pyplot backend.
+    """
+    format = os.path.splitext(outfile)[1][1:].lower()
+    writer = {
+        'pdf': write_pdf,
+        'eps': write_eps,
+        'png': write_eps
+    }
+    writer[format](fig, outfile, dpi)
