@@ -252,8 +252,9 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None,
     return fig
 
 
-def set_axis(ax, which_axis, start, stop, step, range=None, minor=0,
-             format=None, label=None, labelpad=None, ticklabels=None):
+def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
+             format=None, label=None, labelpad=None, ticklabels=None,
+             logscale=False):
     """
     Format the x or y axis of the given axes object
 
@@ -271,7 +272,8 @@ def set_axis(ax, which_axis, start, stop, step, range=None, minor=0,
         value for last tick on the axis (and stop of axis, unless range is
         given)
     step: float
-        step between major ticks
+        step between major ticks. If not given, use automatic ticks. Must not
+        be given if logscale=True
     range: tuple
         The minimum and maximum value of the axis. If not given, [start, stop]
     minor:
@@ -287,16 +289,26 @@ def set_axis(ax, which_axis, start, stop, step, range=None, minor=0,
     ticklabels: array of strings, boolean
         If given, labels for the major tick marks. Alternatively, if given as a
         boolean value "False", suppress labels
+    logscale: set the given axis to use log scale
     """
     if which_axis == 'x':
         axis = ax.xaxis
+        if logscale:
+            ax.set_xscale('log')
     elif which_axis == 'y':
         axis = ax.yaxis
+        if logscale:
+            ax.set_yscale('log')
     else:
         raise ValueError('which_axis must be either "x", or "y"')
-    axis.set_ticks(np.arange(float(start),
-                   float(stop) + float(step)/2.0,
-                   float(step)))
+    if step is not None:
+        if not logscale:
+            axis.set_ticks(np.arange(float(start),
+                        float(stop) + float(step)/2.0,
+                        float(step)))
+        else:
+            raise ValueError('step must not be given in conjuction with '
+                             'logscale=True')
     if format is not None:
         majorFormatter = FormatStrFormatter(format)
         axis.set_major_formatter(majorFormatter)
