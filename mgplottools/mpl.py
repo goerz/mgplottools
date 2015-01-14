@@ -254,7 +254,7 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None,
 
 def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
              format=None, label=None, labelpad=None, ticklabels=None,
-             logscale=False):
+             logscale=False, drop_ticklabels=None):
     """
     Format the x or y axis of the given axes object
 
@@ -290,6 +290,9 @@ def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
         If given, labels for the major tick marks. Alternatively, if given as a
         boolean value "False", suppress labels
     logscale: set the given axis to use log scale
+    drop_ticklabels: list of tick label indices to make invisible. Note that
+        for logscale plots, there may be spurious tick labels, so some trial
+        and error is required.
     """
     if which_axis == 'x':
         axis = ax.xaxis
@@ -337,6 +340,10 @@ def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
             except TypeError:
                 if not ticklabels:
                     ax.set_yticklabels([])
+    if drop_ticklabels is not None:
+        labels = axis.get_ticklabels()
+        for index in drop_ticklabels:
+            labels[index].set_visible(False)
 
 
 def show_fig(fig):
