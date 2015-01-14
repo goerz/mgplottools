@@ -253,8 +253,8 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None,
 
 
 def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
-             format=None, label=None, labelpad=None, ticklabels=None,
-             logscale=False, drop_ticklabels=None):
+             format=None, label=None, labelpad=None, label_coords=None,
+             ticklabels=None, logscale=False, drop_ticklabels=None):
     """
     Format the x or y axis of the given axes object
 
@@ -285,7 +285,11 @@ def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
     label: str
         Axis-label
     labelpad: float
-        spacing in points between the label and the axis
+        spacing in points between the label and the axis. Use label_coords for
+        more control
+    label_coords: tuple (x,y)
+        exact position of the axis label, in the axes relative coordinate
+        system
     ticklabels: array of strings, boolean
         If given, labels for the major tick marks. Alternatively, if given as a
         boolean value "False", suppress labels
@@ -340,6 +344,8 @@ def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
             except TypeError:
                 if not ticklabels:
                     ax.set_yticklabels([])
+    if label_coords is not None:
+        axis.set_label_coords(*label_coords)
     if drop_ticklabels is not None:
         labels = axis.get_ticklabels()
         for index in drop_ticklabels:
