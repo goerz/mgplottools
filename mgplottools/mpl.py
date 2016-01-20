@@ -253,8 +253,9 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None,
 
 
 def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
-             format=None, label=None, labelpad=None, label_coords=None,
-             ticklabels=None, logscale=False, drop_ticklabels=None):
+             format=None, label=None, labelpad=None, tickpad=None,
+             label_coords=None, ticklabels=None, logscale=False,
+             drop_ticklabels=None):
     """
     Format the x or y axis of the given axes object
 
@@ -287,6 +288,8 @@ def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
     labelpad: float
         spacing in points between the label and the axis. Use label_coords for
         more control
+    tickpad: float
+        spacing in points between the ticklabel and the axes.
     label_coords: tuple (x,y)
         exact position of the axis label, in the axes relative coordinate
         system
@@ -350,6 +353,8 @@ def set_axis(ax, which_axis, start, stop, step=None, range=None, minor=0,
         labels = axis.get_ticklabels()
         for index in drop_ticklabels:
             labels[index].set_visible(False)
+    if tickpad is not None:
+        ax.tick_params(axis=which_axis, pad=tickpad)
 
 
 def show_fig(fig):
