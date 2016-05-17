@@ -21,6 +21,7 @@ iterator while plotting:
 You must create a new cycle object each time your want to restart the cycle
 (e.g. for a new panel)
 """
+from __future__ import print_function, absolute_import
 from itertools import cycle
 import matplotlib
 import matplotlib.figure
@@ -212,38 +213,38 @@ def new_figure(fig_width, fig_height, size_in_cm=True, style=None,
         backend = matplotlib.get_backend().lower()
 
     if not quiet:
-        print "Using backend: ", backend
-        print "Using maplotlibrc: ", matplotlib.matplotlib_fname()
+        print("Using backend: %s" % backend)
+        print("Using maplotlibrc: %s" % matplotlib.matplotlib_fname())
     if style is not None:
         try:
             import matplotlib.style as mpl_style
             mpl_style.use(style)
             if not quiet:
-                print "Using style: ", style
+                print("Using style: %s" % style)
         except ImportError:
             if not quiet:
-                print "The style package was added to matplotlib in version " \
-                "1.4. It is not available in your release.\n"
-                print "Using fall-back implementation"
+                print("The style package was added to matplotlib in version " \
+                "1.4. It is not available in your release.\n")
+                print("Using fall-back implementation")
             try:
                 from matplotlib import rc_params_from_file
                 rc = rc_params_from_file(style, use_default_template=False)
                 matplotlib.rcParams.update(rc)
             except:
-                print "Style '%s' not found" % style
+                print("Style '%s' not found" % style)
         except ValueError as e:
-            print "Error loading style %s: %s" % (style, e)
+            print("Error loading style %s: %s" % (style, e))
 
     if size_in_cm:
         if not quiet:
-            print "Figure height: ", fig_height, " cm"
-            print "Figure width : ", fig_width, " cm"
+            print("Figure height: %s cm" % fig_height)
+            print("Figure width : %s cm" % fig_width)
         fig = figure(figsize=(fig_width*cm2inch, fig_height*cm2inch),
                       **kwargs)
     else:
         if not quiet:
-            print "Figure height: ", fig_height / cm2inch, " cm"
-            print "Figure width : ", fig_width / cm2inch , " cm"
+            print("Figure height: %s cm" % (fig_height / cm2inch))
+            print("Figure width : %s cm" % (fig_width / cm2inch))
         fig = figure(figsize=(fig_width, fig_height), **kwargs)
     if using_pyplot:
         # replace fig.show() with matplotlib.pyplot.show()
