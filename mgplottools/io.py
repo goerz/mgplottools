@@ -2,6 +2,10 @@
 Input/Output routines
 """
 import numpy as np
+try:
+    xrange
+except NameError:
+    xrange = range
 
 
 def writetotxt(fname, *args, **kwargs):
@@ -125,7 +129,8 @@ def writetotxt(fname, *args, **kwargs):
                         line = comments + line[l_comments:]
                     else:
                         line = comments + line
-                print >> fh, line
+                fh.write(line)
+                fh.write("\n")
 
         # check input data and prepare row format
         n_cols = 0
@@ -170,7 +175,8 @@ def writetotxt(fname, *args, **kwargs):
                     row_data.append(a[i_row].imag)
                 else:
                     row_data.append(a[i_row])
-            print >> fh, row_fmt % tuple(row_data)
+            fh.write(row_fmt % tuple(row_data))
+            fh.write("\n")
 
         # write footer
         if (isinstance(footer, (list, tuple))):
@@ -182,7 +188,8 @@ def writetotxt(fname, *args, **kwargs):
                         line = comments + line[l_comments:]
                     else:
                         line = comments + line
-                print >> fh, line
+                fh.write(line)
+                fh.write("\n")
 
     finally:
         if own_fh:
